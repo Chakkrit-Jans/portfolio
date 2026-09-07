@@ -44,11 +44,11 @@
   #btn-skills:hover { background: rgba(40,60,90,.85); }
 
   /* ---------- Toasts ---------- */
-  #toasts { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; width: 90%; }
+  #toasts { position: absolute; top: 140px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; width: 90%; }
   .toast {
     background: rgba(15,22,36,.88); color: #fff; border-left: 4px solid var(--gold);
     padding: 8px 16px; border-radius: 8px; font-size: 14px; text-align: center;
-    opacity: 0; transform: translateY(12px); transition: all .3s;
+    opacity: 0; transform: translateY(-12px); transition: all .3s;
     max-width: 480px;
   }
   .toast.show { opacity: 1; transform: translateY(0); }

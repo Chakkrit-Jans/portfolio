@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Portfolio Quest — Chakkrit Jansopanakul</title>
+<meta name="description" content="เรซูเม่ในรูปแบบเกม platformer — วิ่งผ่านเส้นทางอาชีพ 26 ปี จากช่างซ่อมคอมหน้าร้านสู่ผู้บริหาร ERP และเจ้าของกิจการ">
+<style>
+  :root {
+    --edu: #2E8B57;
+    --work: #1E5FA8;
+    --gold: #E8A94A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0D1420; font-family: "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; overflow: hidden; }
+  #game-wrap { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  #stage { position: relative; width: 100vw; height: 100vh; }
+  canvas { display: block; width: 100%; height: 100%; image-rendering: auto; }
+
+  /* ---------- HUD ---------- */
+  #hud {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 8px 12px; display: flex; flex-direction: column; gap: 5px;
+    pointer-events: none; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  }
+  #hud-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .hud-chip {
+    background: rgba(10,16,28,.62); border-radius: 20px; padding: 4px 12px;
+    font-size: 14px; font-weight: 600; backdrop-filter: blur(3px);
+  }
+  #zone-name { font-size: 13px; background: rgba(10,16,28,.55); border-radius: 8px; padding: 4px 10px; max-width: 100%; }
+  .badge { border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 700; }
+  .badge.edu { background: var(--edu); }
+  .badge.work { background: var(--work); }
+  .parallel { color: #FFD966; font-size: 11px; }
+  #progress { height: 8px; background: rgba(255,255,255,.18); border-radius: 6px; overflow: hidden; max-width: 640px; }
+  #prog-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--edu), var(--gold)); transition: width .2s; }
+  #year-scale { display: flex; justify-content: space-between; max-width: 640px; font-size: 10px; opacity: .8; }
+  #btn-skills {
+    position: absolute; top: 8px; right: 12px; pointer-events: auto;
+    background: rgba(10,16,28,.7); color: #fff; border: 1px solid rgba(255,255,255,.25);
+    border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+  }
+  #btn-skills:hover { background: rgba(40,60,90,.85); }
+
+  /* ---------- Toasts ---------- */
+  #toasts { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; width: 90%; }
+  .toast {
+    background: rgba(15,22,36,.88); color: #fff; border-left: 4px solid var(--gold);
+    padding: 8px 16px; border-radius: 8px; font-size: 14px; text-align: center;
+    opacity: 0; transform: translateY(12px); transition: all .3s;
+    max-width: 480px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.skill { border-color: #FFD84D; }
+  .toast.cert { border-color: #E8734A; background: rgba(50,28,14,.9); }
+  .toast.hurt { border-color: #D9534F; }
+  .toast.zone.edu { border-color: var(--edu); }
+  .toast.zone.work { border-color: #6FA8E8; }
+
+  /* ---------- Overlays ---------- */
+  .overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(8,12,22,.82); backdrop-filter: blur(4px); z-index: 10;
+    transition: opacity .5s; border-radius: 6px;
+  }
+  .overlay.gone { opacity: 0; pointer-events: none; }
+  .overlay[hidden], #skills-panel[hidden] { display: none; }
+  .overlay-card {
+    background: #131C2E; border: 1px solid rgba(255,255,255,.15); border-radius: 16px;
+    padding: 28px 34px; max-width: 560px; width: 92%; color: #E8EDF5; text-align: center;
+    max-height: 88%; overflow-y: auto;
+  }
+  .overlay-card h1 { font-size: 26px; margin-bottom: 4px; color: #FFD84D; }
+  .overlay-card h2 { font-size: 15px; font-weight: 500; margin-bottom: 14px; color: #A8C4E8; }
+  .overlay-card p { font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
+  .controls-hint { display: flex; justify-content: center; gap: 18px; margin: 14px 0; font-size: 13px; flex-wrap: wrap; }
+  .controls-hint span { background: rgba(255,255,255,.08); border-radius: 8px; padding: 6px 12px; }
+  kbd { background: #2A3A55; border-radius: 4px; padding: 1px 7px; font-family: inherit; border-bottom: 2px solid #1A2438; }
+  .cta {
+    background: linear-gradient(135deg, #E8A94A, #D97B2E); color: #1A1208; border: none;
+    font-size: 17px; font-weight: 700; padding: 12px 38px; border-radius: 30px; cursor: pointer;
+    margin-top: 8px; font-family: inherit;
+  }
+  .cta:hover { filter: brightness(1.1); }
+  #end-overlay { opacity: 0; }
+  #end-overlay.show { opacity: 1; }
+  #end-stats { text-align: left; font-size: 13.5px; line-height: 2; list-style: none; margin: 10px 0; }
+  .legend { display: flex; justify-content: center; gap: 14px; font-size: 12.5px; margin-bottom: 6px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+  /* ---------- Skills panel ---------- */
+  #skills-panel {
+    position: absolute; top: 44px; right: 12px; width: 330px; max-width: 92%;
+    max-height: 75%; overflow-y: auto; background: rgba(14,20,34,.96);
+    border: 1px solid rgba(255,255,255,.18); border-radius: 12px; color: #E8EDF5;
+    padding: 14px; z-index: 9; font-size: 13px;
+  }
+  #panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
+  #panel-close { background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; }
+  .pz { margin-bottom: 10px; }
+  .pz-head { font-weight: 600; font-size: 12.5px; }
+  .pz-head small { color: #8FA4C4; font-weight: 400; }
+  .pz-n { float: right; color: #FFD84D; }
+  .pz-items { color: #B8C8DE; font-size: 12px; padding: 4px 0 0 22px; line-height: 1.8; }
+
+  /* ---------- Touch controls ---------- */
+  #touch { position: absolute; bottom: 14px; left: 0; right: 0; display: none; justify-content: space-between; padding: 0 20px; pointer-events: none; }
+  #touch button {
+    pointer-events: auto; width: 68px; height: 68px; border-radius: 50%;
+    background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.35);
+    color: #fff; font-size: 26px; touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #touch button:active { background: rgba(255,255,255,.35); }
+  #touch-left { display: flex; gap: 14px; }
+  @media (pointer: coarse) { #touch { display: flex; } }
+
+  footer-note { display: block; font-size: 11px; color: #7C8CA6; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div id="game-wrap">
+  <div id="stage">
+    <canvas id="game" width="960" height="540"></canvas>
+
+    <div id="hud">
+      <div id="hud-top">
+        <div class="hud-chip">✦ ทักษะ <span id="skill-count">0 / 48</span></div>
+        <div class="hud-chip">📜 ใบเซอร์ <span id="cert-count">0 / 5</span></div>
+      </div>
+      <div id="progress"><div id="prog-fill"></div></div>
+      <div id="year-scale"><span>2000</span><span>2006</span><span>2010</span><span>2016</span><span>2026</span></div>
+      <div id="zone-name">เริ่มต้นเส้นทาง ปี 2000 →</div>
+    </div>
+    <button id="btn-skills">📋 ทักษะที่เก็บได้</button>
+
+    <div id="skills-panel" hidden>
+      <div id="panel-head"><span>📋 คลังทักษะและใบรับรอง</span><button id="panel-close">✕</button></div>
+      <div id="panel-body"></div>
+    </div>
+
+    <div id="toasts"></div>
+
+    <div id="touch">
+      <div id="touch-left">
+        <button id="btn-left">◀</button>
+        <button id="btn-right">▶</button>
+      </div>
+      <button id="btn-jump">⤒</button>
+    </div>
+
+    <div id="start-overlay" class="overlay">
+      <div class="overlay-card">
+        <h1>🎮 Portfolio Quest</h1>
+        <h2>เส้นทางอาชีพ 26 ปี ของ Chakkrit Jansopanakul<br>Vice President — ERP @ Bangkok Post · ผู้ก่อตั้ง บริษัท นาโนเดฟ จำกัด</h2>
+        <p>วิ่งผ่านไทม์ไลน์ <b>ปี 2000 → ปัจจุบัน</b> ผ่านสถานศึกษาและที่ทำงานรวม 12 ด่าน<br>
+        เก็บ <b>✦ ทักษะ 48 อย่าง</b> · กระโดดเหยียบ <b>👾 อุปสรรค</b> เพื่อชิงประสบการณ์<br>
+        และหา <b>📜 ใบรับรอง 5 ใบ</b> ที่ซ่อนอยู่บนแท่นสูง (กระโดด 2 ชั้นได้!)</p>
+        <div class="legend">
+          <span><span class="badge edu">🎓 สถานศึกษา</span></span>
+          <span><span class="badge work">💼 สถานที่ทำงาน</span></span>
+          <span>⚡ = เรียนควบคู่ทำงาน</span>
+        </div>
+        <div class="controls-hint">
+          <span><kbd>◀</kbd> <kbd>▶</kbd> หรือ <kbd>A</kbd> <kbd>D</kbd> เดิน</span>
+          <span><kbd>Space</kbd> / <kbd>▲</kbd> กระโดด (กด 2 ครั้ง = double jump)</span>
+        </div>
+        <button id="btn-start" class="cta">▶ เริ่มการเดินทาง</button>
+        <footer-note>มือถือ: ใช้ปุ่มสัมผัสมุมจอ · จังหวัดสมุทรปราการ ประเทศไทย</footer-note>
+      </div>
+    </div>
+
+    <div id="end-overlay" class="overlay" hidden>
+      <div class="overlay-card">
+        <h1>🏁 ถึงเส้นชัย — บริษัท นาโนเดฟ จำกัด</h1>
+        <h2 id="end-collected"></h2>
+        <p>จากช่างซ่อมคอมหน้าร้าน สู่ผู้บริหาร ERP และเจ้าของกิจการ —<br>ทุกครั้งที่ก้าวต่อ เหตุผลเดียวกันคือ <i>"อยากรับผิดชอบระบบที่ใหญ่ขึ้น"</i></p>
+        <ul id="end-stats"></ul>
+        <button id="btn-restart" class="cta">↻ เล่นอีกครั้ง</button>
+        <footer-note>ติดต่อ: chakkrit.jans@gmail.com</footer-note>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

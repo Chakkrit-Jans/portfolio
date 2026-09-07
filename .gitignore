@@ -1,0 +1,5 @@
+# เอกสารออกแบบภายใน — มีข้อมูลวิเคราะห์ส่วนตัวที่ไม่ควรเผยแพร่ในเว็บสาธารณะ
+game-design-data.md
+
+# Claude Code local config
+.claude/

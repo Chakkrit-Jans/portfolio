@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Portfolio Quest — Chakkrit Jansopanakul</title>
 <meta name="description" content="เรซูเม่ในรูปแบบเกม platformer — วิ่งผ่านเส้นทางอาชีพ 26 ปี จากช่างซ่อมคอมหน้าร้านสู่ผู้บริหาร ERP และเจ้าของกิจการ">
 <style>
@@ -13,8 +13,9 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; background: #0D1420; font-family: "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; overflow: hidden; }
-  #game-wrap { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-  #stage { position: relative; width: 100vw; height: 100vh; }
+  /* position:fixed + dvh — ขนาดตามพื้นที่มองเห็นจริงบนมือถือ (ไม่นับหลังแถบ URL) */
+  #game-wrap { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; }
+  #stage { position: relative; width: 100%; height: 100%; }
   canvas { display: block; width: 100%; height: 100%; image-rendering: auto; }
 
   /* ---------- HUD ---------- */
@@ -105,7 +106,7 @@
   .pz-items { color: #B8C8DE; font-size: 12px; padding: 4px 0 0 22px; line-height: 1.8; }
 
   /* ---------- Touch controls ---------- */
-  #touch { position: absolute; bottom: 14px; left: 0; right: 0; display: none; justify-content: space-between; padding: 0 20px; pointer-events: none; }
+  #touch { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; display: none; justify-content: space-between; padding: 0 20px; pointer-events: none; }
   #touch button {
     pointer-events: auto; width: 68px; height: 68px; border-radius: 50%;
     background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.35);

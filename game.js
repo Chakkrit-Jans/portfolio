@@ -16,7 +16,11 @@
   const ctx = canvas.getContext("2d");
 
   function resize() {
-    const aspect = Math.max(0.4, innerWidth / Math.max(1, innerHeight));
+    // ใช้ขนาดจริงของ stage (อิง dvh) แทน innerHeight ซึ่งบนมือถือรวมพื้นที่หลังแถบ URL
+    const stage = document.getElementById("stage");
+    const vw = stage ? stage.clientWidth : innerWidth;
+    const vh = stage ? stage.clientHeight : innerHeight;
+    const aspect = Math.max(0.4, vw / Math.max(1, vh));
     if (aspect >= 1.2) { // จอกว้าง — สูงคงที่ ขยายมุมมองด้านข้าง (มือถือแนวนอง 20:9 ต้องไม่ถูกบีบ)
       H = 540; W = Math.min(Math.round(540 * aspect), 1600);
     } else {            // จอสูง/แนวตั้ง — กว้างคงที่ ขยายท้องฟ้าขึ้นบน
@@ -25,6 +29,8 @@
     canvas.width = W; canvas.height = H;
   }
   addEventListener("resize", resize);
+  if (window.visualViewport) visualViewport.addEventListener("resize", resize);
+  addEventListener("orientationchange", () => setTimeout(resize, 150));
   resize();
 
   // ---------------- World building ----------------

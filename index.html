@@ -116,6 +116,38 @@
   @media (pointer: coarse) { #touch { display: flex; } }
 
   footer-note { display: block; font-size: 11px; color: #7C8CA6; margin-top: 10px; }
+
+  /* ---------- มือถือแนวนอน (จอเตี้ย) — ย่อ HUD/ปุ่ม/toast ไม่ให้บังเกม ---------- */
+  @media (max-height: 520px) {
+    #hud { padding: 4px 8px; gap: 3px; }
+    .hud-chip { font-size: 11px; padding: 2px 8px; }
+    #zone-name { font-size: 10.5px; padding: 2px 8px; }
+    #progress { height: 5px; }
+    #year-scale { font-size: 8px; }
+    #btn-skills { font-size: 11px; padding: 3px 10px; top: 4px; right: 8px; }
+    #toasts { top: 74px; gap: 4px; }
+    .toast { font-size: 11px; padding: 3px 10px; max-width: 52vw; border-left-width: 3px; }
+    #touch { bottom: 8px; padding: 0 12px; }
+    #touch button { width: 46px; height: 46px; font-size: 18px; border-width: 1.5px; }
+    #touch-left { gap: 8px; }
+    .overlay-card { padding: 12px 18px; }
+    .overlay-card h1 { font-size: 19px; }
+    .overlay-card h2 { font-size: 12px; margin-bottom: 8px; }
+    .overlay-card p { font-size: 11.5px; line-height: 1.5; margin-bottom: 6px; }
+    .legend { font-size: 10.5px; gap: 8px; }
+    .controls-hint { font-size: 10.5px; gap: 8px; margin: 8px 0; }
+    .cta { font-size: 14px; padding: 8px 26px; }
+    #end-stats { font-size: 11px; line-height: 1.7; }
+  }
+
+  /* ---------- มือถือแนวตั้ง — ปุ่มและ toast พอดีมือ ---------- */
+  @media (max-width: 600px) and (orientation: portrait) {
+    #touch button { width: 52px; height: 52px; font-size: 20px; }
+    .hud-chip { font-size: 12px; padding: 3px 10px; }
+    #zone-name { font-size: 11px; }
+    .toast { font-size: 12px; padding: 4px 12px; max-width: 72vw; }
+    #toasts { top: 118px; }
+  }
 </style>
 </head>
 <body>

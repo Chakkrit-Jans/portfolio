@@ -17,8 +17,8 @@
 
   function resize() {
     const aspect = Math.max(0.4, innerWidth / Math.max(1, innerHeight));
-    if (aspect >= 1.2) { // จอกว้าง — สูงคงที่ ขยายมุมมองด้านข้าง
-      H = 540; W = Math.min(Math.round(540 * aspect), 1400);
+    if (aspect >= 1.2) { // จอกว้าง — สูงคงที่ ขยายมุมมองด้านข้าง (มือถือแนวนอง 20:9 ต้องไม่ถูกบีบ)
+      H = 540; W = Math.min(Math.round(540 * aspect), 1600);
     } else {            // จอสูง/แนวตั้ง — กว้างคงที่ ขยายท้องฟ้าขึ้นบน
       W = 700; H = Math.min(Math.round(700 / aspect), 1600);
     }
@@ -175,12 +175,13 @@
   const elToasts = document.getElementById("toasts");
 
   function toast(html, cls) {
+    while (elToasts.children.length >= 2) elToasts.firstChild.remove(); // กันซ้อนบังจอ
     const d = document.createElement("div");
     d.className = "toast " + (cls || "");
     d.innerHTML = html;
     elToasts.appendChild(d);
     setTimeout(() => d.classList.add("show"), 16);
-    setTimeout(() => { d.classList.remove("show"); setTimeout(() => d.remove(), 400); }, 2600);
+    setTimeout(() => { d.classList.remove("show"); setTimeout(() => d.remove(), 400); }, 2200);
   }
 
   const badgeLabel = b =>
